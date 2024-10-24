@@ -1,0 +1,199 @@
+import sqlite3
+
+def create_database():
+    conn = sqlite3.connect('licencias.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS licencias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            licencia TEXT NOT NULL,
+            valida BOOLEAN NOT NULL,
+            usuario TEXT NOT NULL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS intentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            licencia TEXT NOT NULL,
+            exito BOOLEAN NOT NULL,
+            fecha TEXT NOT NULL,
+            ip TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def add_license(license_key, is_valid, user):
+    conn = sqlite3.connect('licencias.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO licencias (licencia, valida, usuario) VALUES (?, ?, ?)', (license_key, is_valid, user))
+    conn.commit()
+    conn.close()
+
+# Crear la base de datos y añadir una licencia de prueba
+create_database()
+add_license('1234-5678-ABCD-EFGH', True, 'user1')
+
+import requests
+import time
+import socket
+
+def check_license_online(license_key):
+    # Simular una verificación en línea
+    response = requests.post('https://api.tu-servidor.com/verificar', json={'licencia': license_key})
+    return response.json().get('valida', False)
+
+def log_attempt(license_key, success):
+    conn = sqlite3.connect('licencias.db')
+    cursor = conn.cursor()
+    ip = socket.gethostbyname(socket.gethostname())
+    cursor.execute('INSERT INTO intentos (licencia, exito, fecha, ip) VALUES (?, ?, ?, ?)',
+                   (license_key, success, time.strftime('%Y-%m-%d %H:%M:%S'), ip))
+    conn.commit()
+    conn.close()
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image, ImageTk
+import requests
+import time
+import socket
+import sqlite3
+
+import requests
+
+def check_license_online(license_key):
+    try:
+        response = requests.post('https://api.tu-servidor.com/verificar', json={'licencia': license_key})
+        response.raise_for_status()  # Asegúrate de que la solicitud fue exitosa
+        print(f"Contenido de la respuesta: {response.text}")
+        return response.json().get('valida', False)
+    except requests.exceptions.RequestException as e:
+        print(f"Error en la solicitud: {e}")
+        return False
+    except requests.exceptions.JSONDecodeError:
+        print("La respuesta no es un JSON válido")
+        return False
+
+
+def close_window(event=None):
+    root.destroy()
+
+def animate_warning(label, colors, current_color=0):
+    label.config(fg=colors[current_color])
+    next_color = (current_color + 1) % len(colors)
+    root.after(500, animate_warning, label, colors, next_color)
+
+   # Registrar una combinación de teclas secreta para cerrar
+    root.bind('<Control-Shift-C>', close_window)
+
+def close_verification():
+    verification = tk.Toplevel(root)
+    verification.title("Contraseña de DESBLOQUEO!")
+    verification.geometry("400x250")
+    verification.configure(bg='black')
+
+    label = tk.Label(verification, text="Introduce la contraseña:", fg='white', bg='black')
+    label.pack(pady=10)
+
+    password = tk.Entry(verification, show='*')
+    password.pack(pady=10)
+
+    def check_password():
+        if password.get() == "1234":
+            verification.destroy()
+            root.destroy()
+        else:
+            messagebox.showerror("Error", "Contraseña incorrecta")
+
+    button = tk.Button(verification, text="Verificar", command=check_password, bg='red', fg='white')
+    button.pack(pady=10)
+
+    verification.mainloop()
+
+def main():
+    global root
+    # Crear la ventana principal
+    root = tk.Tk()
+    root.title("HAS ROTO LA LEY!!!")
+
+    # Configurar el tamaño de la ventana y hacerlo pantalla completa
+    root.attributes("-fullscreen", False)
+    root.configure(bg='black')
+
+    # Texto de advertencia
+    label_title = tk.Label(root, text="Intentando piratear verdad?!", font=("Arial", 24, "bold"), fg='red', bg='black')
+    label_title.pack(pady=20)
+
+    # Animar la advertencia en un hilo separado
+    colors = ['red', 'yellow']
+    root.after(500, animate_warning, label_title, colors)
+
+    # Mensaje de advertencia
+    message = (
+        "No intentes escapar de esto...(es demasiado afligido intentarlo).\n"
+        "Por favor,reinicie su ordenador de fabrica para poder continuar usandolo.\n"
+        "Esta accion sera demandada a el DEPARTAMENTO DE JUSTICIA ESPAÑOL! ."
+    )
+    label_message = tk.Label(root, text=message, font=("Arial", 14), fg='white', bg='black', justify="center")
+    label_message.pack(pady=20)
+
+
+    # Cargar la imagen de advertencia
+    try:
+        img = Image.open("warning.png")  # Asegúrate de tener un archivo 'warning.png' en el mismo directorio
+        img = img.resize((450, 450), Image.LANCZOS)
+        img_tk = ImageTk.PhotoImage(img)
+        label_img = tk.Label(root, image=img_tk, bg='black')
+        label_img.pack(pady=20)
+    except FileNotFoundError:
+        label_img = tk.Label(root, text="Tu ordenador ha sido bloqueado!!!", font=("Arial", 14), fg='white', bg='black')
+        label_img.pack(pady=20)
+
+
+
+
+    message8 = """
+
+سورة المائدة (5:38) التي تقول: "وقطعوا يدي السارق واللص أجرا عما ارتكبوه كعقاب من الله. الله سبحانه وتعالى.
+
+"""
+
+    label99 = tk.Label(root,text=message8, font=("Impact", 20), fg="white", bg="black", justify="center")
+    label99.pack(pady=20)
+
+
+
+
+
+    message1 = """
+    Tu dispositivo esta bloqueado!!
+    
+"""
+
+    label80 = tk.Label(root, text=message1, font=("Impact", 20), fg="red", bg="black", justify="center")
+    label80.pack(pady=20)
+
+
+
+
+
+    # Registrar una combinación de teclas secreta para cerrar
+    root.bind('<Control-Shift-C>', close_window)
+
+    # Verificación de licencia
+    license_key = "1234-5678-ABCD-EFGH"  # Puedes pedir este valor al usuario
+    success = check_license_online(license_key)
+    log_attempt(license_key, success)
+
+    if not success:
+        messagebox.showwarning("ALERTA!!", "Se ha detectado el intento de pirateria!.")
+        root.after(10000, close_verification)
+    else:
+        messagebox.showinfo("Software seguro,siga con su diversion!", "Bienvenido. Su licencia ha sido verificada con éxito.")
+        close_window()
+
+    # Ejecutar la ventana
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
